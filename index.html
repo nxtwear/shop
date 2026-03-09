@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NXTwear — Moda Urbana</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+/* ════════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════════ */
+:root {
+  --bg:       #070707;
+  --bg2:      #0f0f0f;
+  --bg3:      #161616;
+  --bg4:      #1c1c1c;
+  --border:   #1e1e1e;
+  --border2:  #2a2a2a;
+  --border3:  #383838;
+  --text:     #f0ede6;
+  --text2:    #aaa;
+  --muted:    #606060;
+  --accent:   #c8a96e;
+  --accent2:  #e2c98a;
+  --accent-dim: rgba(200,169,110,.12);
+  --danger:   #d95555;
+  --success:  #3db87a;
+  --ease:     cubic-bezier(.4,0,.2,1);
+  --ease-out: cubic-bezier(0,.55,.45,1);
+  --nav-h:    70px;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border3);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+/* ════ BACKGROUND ════
+   MUDA A IMAGEM AQUI — substitui o URL dentro de background-image
+   Podes usar: url('https://link-da-imagem.com/foto.jpg')
+   Ou ficheiro local: url('minha-foto.jpg')  (tem de estar na mesma pasta que o loja.html)
+   ═══════════════════════════════════════════ */
+#bg{position:fixed;inset:0;z-index:-1}
+#bg-img{
+  position:absolute;inset:0;
+  background-image: url('https://image2url.com/r2/default/images/1773012968189-cf4640f9-148b-4dc7-93b0-ae592a4ed632.png ');
+  background-size:cover;background-position:center;
+  transform:scale(1.06);will-change:transform;
+}
+#bg-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,
+    rgba(7,7,7,.88) 0%,
+    rgba(7,7,7,.62) 35%,
+    rgba(7,7,7,.78) 65%,
+    rgba(7,7,7,.97) 100%);
+}
+
+/* grain */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  opacity:.5;
+}
+
+/* ══ NAV ══ */
+nav{
+  position:fixed;top:0;left:0;width:100%;z-index:200;height:var(--nav-h);
+  background:rgba(7,7,7,.88);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);transition:background .3s;
+}
+nav.scrolled{background:rgba(7,7,7,.98)}
+.nav-inner{max-width:1440px;margin:0 auto;height:100%;padding:0 2.5rem;display:flex;justify-content:space-between;align-items:center;gap:2rem}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:5px;background:linear-gradient(135deg,#fff 20%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;cursor:pointer;transition:filter .25s;flex-shrink:0}
+.logo:hover{filter:brightness(1.2)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-link{color:var(--muted);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:2.5px;padding:.4rem 0;position:relative;transition:color .2s}
+.nav-link::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--accent);transition:width .3s var(--ease)}
+.nav-link:hover,.nav-link.on{color:var(--text)}
+.nav-link:hover::after,.nav-link.on::after{width:100%}
+.nav-right{display:flex;align-items:center;gap:.8rem}
+.cart-btn{position:relative;padding:.6rem;border-radius:50%;border:1px solid var(--border2);color:var(--text);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.cart-btn:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 20px rgba(200,169,110,.15)}
+.cart-count{position:absolute;top:-5px;right:-5px;background:var(--accent);color:#000;border-radius:50%;width:17px;height:17px;font-size:.58rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.ham{display:none;flex-direction:column;gap:5px;padding:.4rem;cursor:pointer}
+.ham span{width:22px;height:1.5px;background:var(--text);transition:all .3s;display:block}
+.ham.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.ham.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.ham.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.mobile-menu{display:none;position:fixed;top:var(--nav-h);left:0;width:100%;background:rgba(7,7,7,.98);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:190;padding:1.5rem 2rem;flex-direction:column;transform:translateY(-8px);opacity:0;transition:transform .3s var(--ease),opacity .3s;pointer-events:none}
+.mobile-menu.open{transform:translateY(0);opacity:1;pointer-events:all;display:flex}
+.mobile-menu a{padding:1rem 0;border-bottom:1px solid var(--border);color:var(--muted);font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;transition:color .2s}
+.mobile-menu a:hover{color:var(--text)}
+.mobile-menu a:last-child{border:none}
+
+/* ══ PAGES ══ */
+main{margin-top:var(--nav-h);min-height:calc(100vh - var(--nav-h));position:relative;z-index:1}
+.page{display:none}
+.page.on{display:block;animation:pageIn .4s var(--ease-out) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ HERO ══ */
+.hero{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.6rem;border:1px solid var(--border3);padding:.4rem 1.2rem;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:1.8rem;animation:heroFade .8s .1s var(--ease-out) both}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';width:18px;height:1px;background:var(--accent);opacity:.5}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,11vw,10rem);letter-spacing:8px;line-height:.9;margin-bottom:1.4rem;background:linear-gradient(160deg,#fff 0%,rgba(255,255,255,.7) 45%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:heroFade .8s .25s var(--ease-out) both}
+.hero-sub{color:var(--muted);font-size:.88rem;letter-spacing:3px;text-transform:uppercase;margin-bottom:2.8rem;animation:heroFade .8s .4s var(--ease-out) both}
+.hero-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:heroFade .8s .55s var(--ease-out) both}
+@keyframes heroFade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;color:var(--muted);font-size:.65rem;letter-spacing:2px;text-transform:uppercase;animation:heroFade .8s .9s var(--ease-out) both}
+.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--accent),transparent);animation:scrollPulse 2s ease infinite}
+@keyframes scrollPulse{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* ══ STRIP ══ */
+.featured-strip{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:.9rem 2.5rem;display:flex;align-items:center;justify-content:center;gap:3rem;overflow-x:auto}
+.strip-item{display:flex;align-items:center;gap:.5rem;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.strip-icon{color:var(--accent)}
+
+/* ══ SECTION HEADER ══ */
+.section-header{display:flex;align-items:flex-end;justify-content:space-between;max-width:1440px;margin:0 auto;padding:3rem 2.5rem 1.5rem}
+.section-header h2{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:5px;line-height:1}
+.section-header h2 span{color:var(--accent)}
+.section-count{font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding-bottom:.3rem}
+.cat-hero{padding:3.5rem 2.5rem 0;max-width:1440px;margin:0 auto}
+.cat-hero h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,5rem);letter-spacing:7px;line-height:1;margin-bottom:.5rem}
+.cat-hero p{color:var(--muted);font-size:.85rem;letter-spacing:1px}
+
+/* ══ GRID ══ */
+.grid{max-width:1440px;margin:0 auto;padding:1.5rem 2.5rem 4rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem}
+.card{background:var(--bg2);border:1px solid var(--border);overflow:hidden;cursor:pointer;position:relative;transition:transform .35s var(--ease),border-color .3s,box-shadow .35s;contain:layout style}
+.card-badge{position:absolute;top:1rem;left:1rem;z-index:2;background:var(--accent);color:#000;font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:.3rem .7rem}
+.card-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,rgba(0,0,0,.1) 50%,transparent 100%);opacity:0;transition:opacity .35s;display:flex;align-items:flex-end;padding:1.4rem;pointer-events:none}
+.card-quick{font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text);border:1px solid rgba(255,255,255,.4);padding:.5rem 1.2rem;backdrop-filter:blur(6px);transform:translateY(6px);transition:transform .3s}
+.card:hover .card-overlay{opacity:1}
+.card:hover .card-quick{transform:translateY(0)}
+.card:hover{transform:translateY(-6px);border-color:var(--border2);box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.card-img-wrap{overflow:hidden}
+.card img{width:100%;height:310px;object-fit:cover;transition:transform .5s var(--ease);will-change:transform}
+.card:hover img{transform:scale(1.06)}
+.card-info{padding:1.2rem 1.3rem 1.4rem}
+.card-cat{font-size:.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:2.5px;margin-bottom:.35rem;font-weight:600}
+.card-name{font-size:.98rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:.7rem;line-height:1.25}
+.card-footer{display:flex;align-items:center;justify-content:space-between}
+.card-price{font-size:1.25rem;font-weight:700;color:var(--accent)}
+.card-sizes{font-size:.65rem;color:var(--muted);letter-spacing:1px}
+
+/* ══ BUTTONS ══ */
+.btn{position:relative;overflow:hidden;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:2px;transition:all .3s var(--ease);display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-size:.82rem}
+.btn::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transition:left .5s}
+.btn:hover::after{left:100%}
+.btn-primary{background:var(--accent);color:#000;padding:.9rem 2.2rem}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-2px);box-shadow:0 10px 36px rgba(200,169,110,.3)}
+.btn-outline{background:transparent;color:var(--text);border:1.5px solid rgba(255,255,255,.25);padding:.9rem 2.2rem}
+.btn-outline:hover{border-color:var(--text);background:rgba(255,255,255,.05)}
+.btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--border2);padding:.85rem 1.8rem}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-full{width:100%}
+.btn-pay{padding:1.05rem;font-size:.88rem}
+
+/* ══ PRODUCT DETAIL ══ */
+#productPage{max-width:1340px;margin:0 auto;padding:3.5rem 2.5rem}
+.back-btn{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:2.5rem;cursor:pointer;transition:color .2s}
+.back-btn:hover{color:var(--text)}
+.back-btn svg{transition:transform .2s}
+.back-btn:hover svg{transform:translateX(-3px)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+.gallery-main{width:100%;height:540px;object-fit:cover;border:1px solid var(--border);display:block}
+.gallery-thumbs{display:flex;gap:.6rem;margin-top:.7rem}
+.thumb{width:80px;height:80px;object-fit:cover;cursor:pointer;border:1.5px solid var(--border);transition:all .2s;opacity:.5}
+.thumb:hover,.thumb.on{border-color:var(--accent);opacity:1}
+.detail-tag{display:inline-block;font-size:.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--accent);border:1px solid rgba(200,169,110,.3);padding:.3rem .8rem;margin-bottom:1rem}
+.detail-name{font-family:'Bebas Neue',sans-serif;font-size:3.2rem;letter-spacing:3px;line-height:1;margin-bottom:.7rem}
+.detail-price{font-size:2.2rem;font-weight:700;color:var(--accent);margin-bottom:.5rem}
+.detail-divider{height:1px;background:var(--border);margin:1.5rem 0}
+.detail-desc{color:var(--text2);line-height:1.85;margin-bottom:1.8rem;font-size:.9rem}
+.size-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:var(--muted);margin-bottom:.8rem}
+.sizes{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:2.2rem}
+.size-btn{background:transparent;border:1.5px solid var(--border2);color:var(--muted);padding:.55rem 1.05rem;cursor:pointer;font-weight:600;font-size:.83rem;font-family:'DM Sans',sans-serif;transition:all .2s;letter-spacing:.5px}
+.size-btn:hover{border-color:var(--text);color:var(--text)}
+.size-btn.on{background:var(--accent);border-color:var(--accent);color:#000}
+.size-btn.oos{opacity:.2;cursor:not-allowed;text-decoration:line-through}
+.detail-actions{display:flex;gap:.8rem}
+.stock-info{margin-top:1.5rem;font-size:.72rem;color:var(--muted);letter-spacing:1px;display:flex;align-items:center;gap:.5rem}
+.stock-dot{width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0}
+.stock-dot.low{background:#e0a855}
+
+/* ══ CART ══ */
+#cartPage{max-width:1120px;margin:0 auto;padding:3rem 2.5rem}
+.cart-grid{display:grid;grid-template-columns:1fr 310px;gap:2rem}
+.cart-list{display:flex;flex-direction:column;gap:.7rem}
+.cart-item{background:var(--bg2);border:1px solid var(--border);padding:1.2rem 1.4rem;display:grid;grid-template-columns:76px 1fr auto;gap:1.2rem;align-items:center;transition:border-color .2s}
+.cart-item:hover{border-color:var(--border2)}
+.cart-item img{width:76px;height:76px;object-fit:cover;border:1px solid var(--border)}
+.ci-name{font-weight:700;font-size:.92rem;margin-bottom:.2rem}
+.ci-size{color:var(--muted);font-size:.75rem;letter-spacing:.5px}
+.ci-right{display:flex;flex-direction:column;align-items:flex-end;gap:.6rem}
+.qty{display:flex;align-items:center;gap:.35rem}
+.qty-btn{width:26px;height:26px;border:1px solid var(--border2);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .15s}
+.qty-btn:hover{background:var(--accent);border-color:var(--accent);color:#000}
+.qty-val{font-size:.88rem;font-weight:600;min-width:18px;text-align:center}
+.ci-price{font-size:1.05rem;font-weight:700;color:var(--accent)}
+.rm-btn{color:var(--border3);font-size:1.1rem;transition:color .2s;line-height:1}
+.rm-btn:hover{color:var(--danger)}
+.cart-box{background:var(--bg2);border:1px solid var(--border);padding:1.8rem;position:sticky;top:calc(var(--nav-h) + 1.5rem);height:fit-content}
+.cart-box-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--muted);margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.sum-row{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;font-size:.87rem;color:var(--muted)}
+.sum-row span:last-child{color:var(--text);font-weight:600}
+.sum-divider{height:1px;background:var(--border);margin:.6rem 0}
+.sum-total{display:flex;justify-content:space-between;align-items:center;padding:.8rem 0 0;font-size:1.1rem;font-weight:700}
+.sum-total span:last-child{color:var(--accent);font-size:1.4rem}
+.empty{text-align:center;padding:5rem 2rem;color:var(--muted)}
+.empty-icon{font-size:3rem;display:block;margin-bottom:1rem;opacity:.15}
+.empty p{font-size:.9rem;margin-bottom:1.5rem}
+
+/* ══ CHECKOUT ══ */
+#checkoutPage{max-width:1120px;margin:0 auto;padding:3rem 2.5rem}
+.checkout-progress{display:flex;align-items:center;margin-bottom:2.5rem;max-width:400px}
+.prog-step{display:flex;align-items:center;gap:.5rem;font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.prog-num{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border3);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:.65rem;transition:all .3s;flex-shrink:0}
+.prog-step.done .prog-num{background:var(--accent);border-color:var(--accent);color:#000}
+.prog-step.active .prog-num{border-color:var(--accent);color:var(--accent)}
+.prog-label{color:var(--muted);transition:color .3s}
+.prog-step.active .prog-label,.prog-step.done .prog-label{color:var(--text)}
+.prog-line{flex:1;height:1px;background:var(--border2);margin:0 .6rem;min-width:30px}
+.checkout-grid{display:grid;grid-template-columns:1fr 310px;gap:2rem}
+.form-box{background:var(--bg2);border:1px solid var(--border);padding:2.4rem}
+.form-section-title{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--accent);margin:2rem 0 1.2rem;padding-bottom:.6rem;border-bottom:1px solid var(--border)}
+.form-section-title:first-child{margin-top:0}
+.field{margin-bottom:1rem;position:relative}
+.field label{display:block;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:.45rem;transition:color .2s}
+.field:focus-within label{color:var(--accent)}
+.field input,.field select{width:100%;background:rgba(255,255,255,.025);border:1px solid var(--border2);color:var(--text);padding:.85rem 1rem;font-size:.9rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s,background .2s}
+.field input::placeholder{color:var(--border3)}
+.field input:focus,.field select:focus{border-color:var(--accent);background:rgba(200,169,110,.03);box-shadow:0 0 0 3px rgba(200,169,110,.07)}
+.field input.valid{border-color:rgba(61,184,122,.35)}
+.field-icon{position:absolute;right:1rem;bottom:.9rem;font-size:.85rem;pointer-events:none;opacity:.35;transition:opacity .2s}
+.field:focus-within .field-icon{opacity:.7}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.carriers{display:flex;flex-direction:column;gap:.5rem;margin-bottom:.5rem}
+.carrier{background:var(--bg3);border:1.5px solid var(--border);padding:1rem 1.2rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:all .2s;border-radius:3px}
+.carrier:hover{border-color:var(--border2)}
+.carrier.on{border-color:var(--accent);background:var(--accent-dim)}
+.carrier-left{display:flex;align-items:center;gap:.9rem}
+.carrier-icon{font-size:1.2rem}
+.carrier-name{font-weight:700;font-size:.88rem}
+.carrier-eta{font-size:.72rem;color:var(--muted);margin-top:.1rem}
+.carrier-price{font-weight:700;color:var(--accent);font-size:.92rem}
+.pay-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin-bottom:1.4rem}
+.pay-tab{background:transparent;border:1.5px solid var(--border);color:var(--muted);padding:.7rem .2rem;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;text-align:center;border-radius:3px}
+.pay-tab:hover{border-color:var(--border3);color:var(--text)}
+.pay-tab.on{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.pay-panel{display:none}
+.pay-panel.on{display:block;animation:pageIn .3s var(--ease-out)}
+
+/* MBWAY */
+.mbway-box{background:rgba(0,0,0,.3);border:1px solid var(--border);padding:2rem;text-align:center;margin-bottom:1rem;border-radius:3px;position:relative;overflow:hidden}
+.mbway-box::before{content:'';position:absolute;top:-40%;left:-10%;width:120%;height:80%;background:radial-gradient(ellipse,rgba(200,169,110,.05) 0%,transparent 70%);pointer-events:none}
+.mbway-logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:5px;margin:.5rem 0;color:var(--text)}
+.mbway-sub{color:var(--muted);font-size:.8rem;margin-bottom:.8rem}
+.mbway-num{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:8px;background:var(--accent-dim);border:1px solid rgba(200,169,110,.25);padding:.7rem 1.8rem;display:inline-block;margin:.8rem 0 .3rem;cursor:pointer;transition:all .25s;color:var(--accent)}
+.mbway-num:hover{border-color:var(--accent);background:rgba(200,169,110,.18);transform:scale(1.02)}
+.mbway-copy-hint{font-size:.68rem;color:var(--muted);letter-spacing:1px;margin-bottom:1.2rem}
+.steps{display:flex;flex-direction:column;gap:.55rem;text-align:left;margin-top:1rem}
+.step{display:flex;gap:.8rem;align-items:flex-start;font-size:.82rem;color:var(--muted)}
+.step-n{background:var(--accent);color:#000;min-width:20px;height:20px;border-radius:50%;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;flex-shrink:0}
+.step strong{color:var(--text2)}
+
+/* EXTERNAL PAY */
+.ext-box{background:rgba(0,0,0,.3);border:1px solid var(--border);padding:2.2rem;text-align:center;margin-bottom:1rem;border-radius:3px;position:relative;overflow:hidden}
+.ext-box::before{content:'';position:absolute;top:-40%;left:-10%;width:120%;height:80%;background:radial-gradient(ellipse,rgba(200,169,110,.04) 0%,transparent 70%);pointer-events:none}
+.ext-emoji{font-size:2rem;margin-bottom:.4rem}
+.ext-name{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:4px;margin-bottom:.6rem}
+.ext-desc{color:var(--muted);font-size:.82rem;line-height:1.75;margin-bottom:1.2rem;max-width:320px;margin-left:auto;margin-right:auto}
+.ext-amount{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--accent);letter-spacing:2px;padding:.5rem 1.5rem;border:1px solid rgba(200,169,110,.25);background:var(--accent-dim);display:inline-block;margin-bottom:1.4rem}
+.ext-link{display:inline-flex;align-items:center;gap:.5rem;padding:.88rem 2rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:2px;transition:all .25s;border-radius:3px}
+.ext-link.paypal{background:#1a3799;color:#fff}
+.ext-link.paypal:hover{background:#2244bb;transform:translateY(-2px);box-shadow:0 8px 28px rgba(26,55,153,.4)}
+.ext-link.revolut{background:#111;color:#fff;border:1px solid #2a2a2a}
+.ext-link.revolut:hover{background:#1a1a1a;transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.6)}
+
+/* pay note + já paguei */
+.pay-note{font-size:.7rem;color:var(--accent);font-style:italic;letter-spacing:.5px;margin-top:.9rem;opacity:0;transition:opacity .5s}
+.pay-note.show{opacity:1}
+.btn-already{margin-top:.8rem;background:transparent;border:1.5px solid var(--border2);color:var(--muted);opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .4s var(--ease),transform .4s var(--ease),border-color .2s,color .2s}
+.btn-already.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+.btn-already:hover{border-color:var(--accent);color:var(--accent)}
+
+.status{padding:1.1rem 1.3rem;margin-top:1.2rem;display:none;font-size:.85rem;border-radius:3px;line-height:1.65}
+.status.ok{background:rgba(61,184,122,.06);border:1px solid rgba(61,184,122,.2);color:var(--success)}
+.status.err{background:rgba(217,85,85,.06);border:1px solid rgba(217,85,85,.2);color:var(--danger)}
+.status.loading{background:rgba(255,255,255,.02);border:1px solid var(--border);color:var(--muted)}
+
+/* ORDER BOX */
+.order-box{background:var(--bg2);border:1px solid var(--border);padding:1.8rem;position:sticky;top:calc(var(--nav-h) + 1.5rem);height:fit-content}
+.order-box-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--muted);margin-bottom:1.4rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.order-item{display:flex;gap:.9rem;padding-bottom:.9rem;margin-bottom:.9rem;border-bottom:1px solid var(--border)}
+.order-item:last-of-type{border:none;margin-bottom:0;padding-bottom:0}
+.order-item img{width:48px;height:48px;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
+.oi-name{font-size:.82rem;font-weight:600;margin-bottom:.2rem}
+.oi-detail{font-size:.72rem;color:var(--muted);margin-top:.1rem}
+
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:5px;margin-bottom:2rem}
+.page-title span{color:var(--accent)}
+
+footer{border-top:1px solid var(--border);padding:2.5rem;text-align:center;color:var(--muted);font-size:.72rem;letter-spacing:1px;margin-top:4rem}
+footer strong{color:var(--text);letter-spacing:3px;font-family:'Bebas Neue',sans-serif;font-size:.9rem}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:980px){
+  .detail-grid,.cart-grid,.checkout-grid{grid-template-columns:1fr}
+  .cart-box,.order-box{position:static}
+  .detail-grid{gap:2.5rem}
+  .section-header{flex-direction:column;align-items:flex-start;gap:.5rem}
+}
+@media(max-width:640px){
+  .nav-links{display:none}
+  .ham{display:flex}
+  .nav-inner{padding:0 1.4rem}
+  .grid{grid-template-columns:1fr 1fr;padding:1rem 1rem 3rem;gap:.8rem}
+  .card img{height:220px}
+  .hero-title{letter-spacing:4px}
+  .hero-actions{flex-direction:column;align-items:center}
+  .detail-actions{flex-direction:column}
+  .pay-tabs{grid-template-columns:1fr}
+  #productPage,#cartPage,#checkoutPage{padding:2rem 1rem}
+  .form-box{padding:1.4rem}
+  .featured-strip{gap:1.5rem;padding:.9rem 1rem;justify-content:flex-start}
+  .row2{grid-template-columns:1fr}
+  .checkout-progress{max-width:100%}
+}
+@media(max-width:420px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="bg">
+  <div id="bg-img"></div>
+  <div id="bg-overlay"></div>
+</div>
+
+<nav id="mainNav">
+  <div class="nav-inner">
+    <div class="logo" onclick="go('home')">NXTwear</div>
+    <ul class="nav-links">
+      <li><a class="nav-link on" data-page="home"    href="#">Início</a></li>
+      <li><a class="nav-link"   data-page="shoes"   href="#">Sapatos</a></li>
+      <li><a class="nav-link"   data-page="sweats"  href="#">Sweats</a></li>
+      <li><a class="nav-link"   data-page="tshirts" href="#">T-Shirts</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="cart-btn" id="cartBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <div class="ham" id="ham" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#" onclick="go('home');closeMenu()">Início</a>
+  <a href="#" onclick="go('shoes');closeMenu()">Sapatos</a>
+  <a href="#" onclick="go('sweats');closeMenu()">Sweats</a>
+  <a href="#" onclick="go('tshirts');closeMenu()">T-Shirts</a>
+</div>
+
+<main>
+
+<!-- HOME -->
+<section id="homePage" class="page on">
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow">Nova Coleção · 2026</div>
+      <h1 class="hero-title">DEFINE O TEU<br>ESTILO</h1>
+      <p class="hero-sub">Streetwear premium para quem não segue tendências — cria-as</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="go('shoes')">Explorar Agora</button>
+        <button class="btn btn-outline" onclick="go('sweats')">Ver Sweats</button>
+      </div>
+    </div>
+    <div class="scroll-hint"><div class="scroll-line"></div><span>scroll</span></div>
+  </div>
+
+  <div class="featured-strip">
+    <div class="strip-item"><span class="strip-icon">✦</span>Envio CTT</div>
+    <div class="strip-item"><span class="strip-icon">✦</span>Pagamento Seguro</div>
+    <div class="strip-item"><span class="strip-icon">✦</span>Qualidade Premium</div>
+  </div>
+
+  <div class="section-header">
+    <h2>Destaques <span>·</span></h2>
+    <span class="section-count" id="homeCount"></span>
+  </div>
+  <div class="grid" id="homeGrid"></div>
+</section>
+
+<!-- CATEGORIAS -->
+<section id="shoesPage" class="page">
+  <div class="cat-hero"><h2>Sapatos</h2><p>Cada passo com estilo e performance</p></div>
+  <div class="grid" id="shoesGrid"></div>
+</section>
+<section id="sweatsPage" class="page">
+  <div class="cat-hero"><h2>Sweats</h2><p>Conforto urbano sem comprometer o estilo</p></div>
+  <div class="grid" id="sweatsGrid"></div>
+</section>
+<section id="tshirtsPage" class="page">
+  <div class="cat-hero"><h2>T-Shirts</h2><p>Básicos que fazem a diferença</p></div>
+  <div class="grid" id="tshirtsGrid"></div>
+</section>
+
+<!-- PRODUTO -->
+<section id="productPage" class="page">
+  <div class="back-btn" onclick="history.back()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Voltar
+  </div>
+  <div class="detail-grid" id="detailInner"></div>
+</section>
+
+<!-- CARRINHO -->
+<section id="cartPage" class="page">
+  <h2 class="page-title">Carrinho <span>—</span></h2>
+  <div class="cart-grid">
+    <div class="cart-list" id="cartList"></div>
+    <div class="cart-box">
+      <div class="cart-box-title">Resumo do Pedido</div>
+      <div class="sum-row"><span>Subtotal</span><span id="sumSub">€0.00</span></div>
+      <div class="sum-row"><span>Envio</span><span id="sumShip">—</span></div>
+      <div class="sum-divider"></div>
+      <div class="sum-total"><span>Total</span><span id="sumTotal">€0.00</span></div>
+      <button class="btn btn-primary btn-pay btn-full" style="margin-top:1.6rem" onclick="go('checkout');loadCheckout()">Finalizar Compra →</button>
+      <button class="btn btn-ghost btn-full" style="margin-top:.6rem" onclick="go('home')">Continuar a comprar</button>
+    </div>
+  </div>
+  <footer><strong>NXTwear</strong><br>&copy; 2026 · Todos os direitos reservados</footer>
+</section>
+
+<!-- CHECKOUT -->
+<section id="checkoutPage" class="page">
+  <div class="checkout-progress">
+    <div class="prog-step done"><div class="prog-num">✓</div><span class="prog-label">Carrinho</span></div>
+    <div class="prog-line"></div>
+    <div class="prog-step active"><div class="prog-num">2</div><span class="prog-label">Entrega</span></div>
+    <div class="prog-line"></div>
+    <div class="prog-step"><div class="prog-num">3</div><span class="prog-label">Pagamento</span></div>
+  </div>
+
+  <h2 class="page-title">Pagamento <span>—</span></h2>
+
+  <div class="checkout-grid">
+    <div class="form-box">
+      <div class="form-section-title">Informações de Envio</div>
+
+      <div class="field">
+        <label>Nome Completo</label>
+        <input id="fName" type="text" autocomplete="name" placeholder="João Silva">
+        <span class="field-icon">👤</span>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input id="fEmail" type="email" autocomplete="email" placeholder="exemplo@email.com">
+        <span class="field-icon">✉️</span>
+      </div>
+      <div class="field">
+        <label>Telefone</label>
+        <input id="fPhone" type="tel" autocomplete="tel" inputmode="numeric" placeholder="9XX XXX XXX">
+        <span class="field-icon">📞</span>
+      </div>
+      <div class="field">
+        <label>Morada</label>
+        <input id="fAddr" type="text" autocomplete="street-address" placeholder="Rua, Nº, Andar">
+        <span class="field-icon">📍</span>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Cidade</label>
+          <input id="fCity" type="text" autocomplete="address-level2" placeholder="Lisboa">
+        </div>
+        <div class="field">
+          <label>Código Postal</label>
+          <input id="fZip" type="text" autocomplete="postal-code" inputmode="numeric" placeholder="0000-000">
+        </div>
+      </div>
+
+      <div class="form-section-title">Transportadora</div>
+      <div class="carriers">
+        <div class="carrier on" data-name="CTT Expresso" data-price="5.00">
+          <div class="carrier-left">
+            <div class="carrier-icon">📦</div>
+            <div><div class="carrier-name">CTT Expresso</div><div class="carrier-eta">2–3 dias úteis</div></div>
+          </div>
+          <div class="carrier-price">€5.00</div>
+        </div>
+        <div class="carrier" data-name="Levantamento em Loja" data-price="0.00">
+          <div class="carrier-left">
+            <div class="carrier-icon">🏪</div>
+            <div><div class="carrier-name">Levantamento em Loja</div><div class="carrier-eta">Disponível em 24h</div></div>
+          </div>
+          <div class="carrier-price">Grátis</div>
+        </div>
+      </div>
+
+      <div class="form-section-title">Método de Pagamento</div>
+      <div class="pay-tabs">
+        <button class="pay-tab on" data-panel="mbway">📱 MB WAY</button>
+        <button class="pay-tab"    data-panel="paypal">🔵 PayPal</button>
+        <button class="pay-tab"    data-panel="revolut">🔄 Revolut</button>
+      </div>
+
+      <!-- MBWAY -->
+      <div class="pay-panel on" id="panelMbway">
+        <div class="mbway-box">
+          <div style="font-size:2rem">📱</div>
+          <div class="mbway-logo">MB WAY</div>
+          <div class="mbway-sub">Transfere o valor para o número abaixo</div>
+          <div class="mbway-num" onclick="onMbwayClick()" title="Clica para copiar">934 529 538</div>
+          <div class="mbway-copy-hint">💡 Clica no número para copiar</div>
+          <div class="steps">
+            <div class="step"><div class="step-n">1</div><span>Abre a app <strong>MB WAY</strong></span></div>
+            <div class="step"><div class="step-n">2</div><span>Vai a <strong>Transferências → Enviar dinheiro</strong></span></div>
+            <div class="step"><div class="step-n">3</div><span>Insere o número <strong>934 529 538</strong> e o valor exato</span></div>
+            <div class="step"><div class="step-n">4</div><span>Confirma na app e clica em <strong>"Já Paguei"</strong> abaixo</span></div>
+          </div>
+          <p class="pay-note" id="mbNote">✓ Número copiado! Após pagar na app, clica no botão abaixo ↓</p>
+        </div>
+        <button class="btn btn-already btn-pay btn-full" id="btnMB" onclick="submitOrder('MB WAY')">
+          ✓ Já Paguei — Confirmar Pedido
+        </button>
+      </div>
+
+      <!-- PAYPAL -->
+      <div class="pay-panel" id="panelPaypal">
+        <div class="ext-box">
+          <div class="ext-emoji">🔵</div>
+          <div class="ext-name">PayPal</div>
+          <p class="ext-desc">Clica abaixo para pagares via PayPal. Após o pagamento, volta aqui e confirma o pedido.</p>
+          <div class="ext-amount" id="ppAmount">€0.00</div><br>
+          <a id="ppLink" href="https://paypal.me/DiogoPardal429" target="_blank"
+             class="ext-link paypal" onclick="return onExternalPay('pp')">
+            Pagar com PayPal →
+          </a>
+          <p class="pay-note" id="ppNote">✓ Link aberto! Após pagar, clica em "Já Paguei" abaixo ↓</p>
+        </div>
+        <button class="btn btn-already btn-pay btn-full" id="btnPP" onclick="submitOrder('PayPal')">
+          ✓ Já Paguei — Confirmar Pedido
+        </button>
+      </div>
+
+      <!-- REVOLUT -->
+      <div class="pay-panel" id="panelRevolut">
+        <div class="ext-box">
+          <div class="ext-emoji">🔄</div>
+          <div class="ext-name">Revolut</div>
+          <p class="ext-desc">Clica abaixo para pagares via Revolut. Após o pagamento, volta aqui e confirma o pedido.</p>
+          <div class="ext-amount" id="rvAmount">€0.00</div><br>
+          <a id="rvLink" href="https://revolut.me/pratas08" target="_blank"
+             class="ext-link revolut" onclick="return onExternalPay('rv')">
+            Pagar com Revolut →
+          </a>
+          <p class="pay-note" id="rvNote">✓ Link aberto! Após pagar, clica em "Já Paguei" abaixo ↓</p>
+        </div>
+        <button class="btn btn-already btn-pay btn-full" id="btnRV" onclick="submitOrder('Revolut')">
+          ✓ Já Paguei — Confirmar Pedido
+        </button>
+      </div>
+
+      <div class="status" id="orderStatus"></div>
+    </div>
+
+    <div class="order-box">
+      <div class="order-box-title">Resumo do Pedido</div>
+      <div id="orderItems"></div>
+      <div class="sum-divider" style="margin-top:.5rem"></div>
+      <div class="sum-row"><span>Envio</span><span id="orderShip">—</span></div>
+      <div class="sum-total" style="margin-top:.4rem"><span>Total</span><span id="orderTotal">€0.00</span></div>
+    </div>
+  </div>
+  <footer><strong>NXTwear</strong><br>&copy; 2026 · Pagamento 100% seguro</footer>
+</section>
+
+</main>
+
+<script>
+'use strict';
+/* ════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════ */
+const CFG = {
+  emailjs:  { publicKey:'mtQ1G7EJLT3kF_g83', serviceId:'service_2s5llhc', templateId:'template_v3r0o4r' },
+  telegram: { token:'8606272598:AAHiZJPWYfMB2mRgQOAR03pkYYiqRSkwNiQ', chatId:'-5045905487' },
+  paypal:   'https://paypal.me/DiogoPardal429',
+  revolut:  'https://revolut.me/pratas08',
+  mbway:    '934529538'
+};
+
+/* ════════════════════════════════════════════
+   PRODUTOS
+   ── Para mudar imagens dos produtos:
+      • "img"  → imagem do card (thumbnail na grelha)
+      • "imgs" → galeria no detalhe do produto [principal, 2ª, 3ª foto]
+      Substitui os URLs do Unsplash pelos teus links ou ficheiros locais.
+════════════════════════════════════════════ */
+const PRODUCTS = [
+  {
+    id:1, cat:'shoes', name:'Air Storm Runner', price:129.99, badge:'Novo',
+    desc:'Tênis de corrida premium com tecnologia de amortecimento avançada. Sola de borracha de alta aderência e cabedal respirável.',
+    img:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600',
+    imgs:['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600','https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600','https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=600'],
+    sizes:['39','40','41','42','43','44'], stock:{'39':5,'40':10,'41':8,'42':12,'43':6,'44':3}
+  },
+  {
+    id:2, cat:'sweats', name:'Urban Classic Hoodie', price:79.99, badge:null,
+    desc:'Sweat com capuz em algodão premium 320g. Bolso canguru e interior tufado para máximo conforto.',
+    img:'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600',
+    imgs:['https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600','https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600'],
+    sizes:['S','M','L','XL'], stock:{'S':8,'M':15,'L':12,'XL':7}
+  },
+  {
+    id:3, cat:'tshirts', name:'Essential Tee', price:34.99, badge:'Best Seller',
+    desc:'T-shirt de algodão combed 180g. Corte regular com acabamento duplo nas costuras.',
+    img:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600',
+    imgs:['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600','https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600'],
+    sizes:['XS','S','M','L','XL','XXL'], stock:{'XS':10,'S':20,'M':25,'L':20,'XL':15,'XXL':8}
+  },
+  {
+    id:4, cat:'shoes', name:'Velocity Pro', price:149.99, badge:null,
+    desc:'Sapatilha de treino profissional com palmilha ortopédica e tecnologia de estabilidade lateral.',
+    img:'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600',
+    imgs:['https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600','https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600'],
+    sizes:['38','39','40','41','42','43'], stock:{'38':4,'39':8,'40':10,'41':9,'42':11,'43':5}
+  },
+  {
+    id:5, cat:'sweats', name:'Performance Zip Hoodie', price:89.99, badge:null,
+    desc:'Sweat técnica com fecho YKK full-zip. Tecido de secagem rápida com tratamento anti-odor.',
+    img:'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600',
+    imgs:['https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600','https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600'],
+    sizes:['S','M','L','XL','XXL'], stock:{'S':6,'M':12,'L':15,'XL':10,'XXL':5}
+  },
+  {
+    id:6, cat:'tshirts', name:'Graphic Statement Tee', price:39.99, badge:'Limited',
+    desc:'T-shirt com artwork exclusivo em silk-screen de 4 cores. Edição limitada.',
+    img:'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=600',
+    imgs:['https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=600','https://images.unsplash.com/photo-1622445275463-afa2ab738c34?w=600'],
+    sizes:['S','M','L','XL'], stock:{'S':15,'M':20,'L':18,'XL':12}
+  }
+];
+
+const CAT_LABEL = { shoes:'Sapatos', sweats:'Sweats', tshirts:'T-Shirts' };
+
+/* ── STATE ── */
+let cart       = JSON.parse(localStorage.getItem('nxt_cart') || '[]');
+let curProduct = null;
+let curSize    = null;
+let carrier    = { name:'CTT Expresso', price:5.00 };
+
+/* ── BOOT ── */
+emailjs.init(CFG.emailjs.publicKey);
+document.addEventListener('DOMContentLoaded', () => {
+  renderAllGrids();
+  updateBadge();
+  initNav();
+  initCarriers();
+  initPayTabs();
+  initInputRestrictions();
+  window.addEventListener('scroll', () => {
+    document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive:true });
+  document.getElementById('cartBtn').onclick = () => { renderCart(); go('cart'); };
+});
+
+/* ── MOBILE MENU ── */
+function toggleMenu() {
+  document.getElementById('ham').classList.toggle('open');
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+function closeMenu() {
+  document.getElementById('ham').classList.remove('open');
+  document.getElementById('mobileMenu').classList.remove('open');
+}
+
+/* ── NAV ── */
+function initNav() {
+  document.querySelectorAll('.nav-link').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      go(a.dataset.page);
+      document.querySelectorAll('.nav-link').forEach(x => x.classList.remove('on'));
+      a.classList.add('on');
+    });
+  });
+}
+function go(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  const el = document.getElementById(page + 'Page');
+  if (el) { el.classList.add('on'); window.scrollTo({ top:0, behavior:'smooth' }); }
+}
+
+/* ── GRIDS ── */
+function renderAllGrids() {
+  const all = PRODUCTS.slice(0,6);
+  document.getElementById('homeGrid').innerHTML    = all.map(productCard).join('');
+  document.getElementById('homeCount').textContent = all.length + ' produtos';
+  ['shoes','sweats','tshirts'].forEach(cat => {
+    document.getElementById(cat+'Grid').innerHTML = PRODUCTS.filter(p=>p.cat===cat).map(productCard).join('');
+  });
+}
+function productCard(p) {
+  return `
+  <div class="card" onclick="openProduct(${p.id})">
+    ${p.badge ? `<div class="card-badge">${p.badge}</div>` : ''}
+    <div class="card-img-wrap">
+      <img src="${p.img}" alt="${p.name}" loading="lazy">
+      <div class="card-overlay"><div class="card-quick">Ver Produto</div></div>
+    </div>
+    <div class="card-info">
+      <div class="card-cat">${CAT_LABEL[p.cat]}</div>
+      <div class="card-name">${p.name}</div>
+      <div class="card-footer">
+        <div class="card-price">€${p.price.toFixed(2)}</div>
+        <div class="card-sizes">${p.sizes.join(' · ')}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── PRODUCT DETAIL ── */
+function openProduct(id) {
+  curProduct = PRODUCTS.find(p => p.id === id);
+  curSize    = null;
+  const totalStock = Object.values(curProduct.stock).reduce((a,b) => a+b, 0);
+  document.getElementById('detailInner').innerHTML = `
+    <div>
+      <img class="gallery-main" id="mainImg" src="${curProduct.imgs[0]}" alt="${curProduct.name}">
+      <div class="gallery-thumbs">
+        ${curProduct.imgs.map((src,i) => `
+          <img class="thumb ${i===0?'on':''}" src="${src}" onclick="swapImg('${src}',${i})" loading="lazy">
+        `).join('')}
+      </div>
+    </div>
+    <div>
+      <div class="detail-tag">${CAT_LABEL[curProduct.cat]}</div>
+      <div class="detail-name">${curProduct.name}</div>
+      <div class="detail-price">€${curProduct.price.toFixed(2)}</div>
+      <div class="detail-divider"></div>
+      <p class="detail-desc">${curProduct.desc}</p>
+      <div class="size-label">Seleciona o Tamanho</div>
+      <div class="sizes">
+        ${curProduct.sizes.map(s => `
+          <button class="size-btn ${curProduct.stock[s]===0?'oos':''}"
+            ${curProduct.stock[s]===0?'disabled':''} onclick="pickSize('${s}',this)">
+            ${s}
+          </button>`).join('')}
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-primary" onclick="addToCart()">Adicionar ao Carrinho</button>
+        <button class="btn btn-outline" onclick="buyNow()">Comprar Agora</button>
+      </div>
+      <div class="stock-info">
+        <div class="stock-dot ${totalStock<=10?'low':''}"></div>
+        ${totalStock<=10 ? `Apenas ${totalStock} unidades` : 'Em stock · pronto a enviar'}
+      </div>
+    </div>`;
+  go('product');
+}
+function swapImg(src, i) {
+  document.getElementById('mainImg').src = src;
+  document.querySelectorAll('.thumb').forEach((t,j) => t.classList.toggle('on', j===i));
+}
+function pickSize(s, btn) {
+  curSize = s;
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+/* ── CART ── */
+function addToCart() {
+  if (!curSize) { showToast('⚠️ Seleciona um tamanho'); return; }
+  const ex = cart.find(i => i.id===curProduct.id && i.size===curSize);
+  ex ? ex.qty++ : cart.push({ id:curProduct.id, name:curProduct.name, price:curProduct.price, img:curProduct.img, size:curSize, qty:1 });
+  saveCart(); updateBadge(); showToast('✓ Adicionado ao carrinho');
+}
+function buyNow() {
+  if (!curSize) { showToast('⚠️ Seleciona um tamanho'); return; }
+  addToCart(); renderCart(); go('checkout'); loadCheckout();
+}
+function renderCart() {
+  const list = document.getElementById('cartList');
+  if (!cart.length) {
+    list.innerHTML = `<div class="empty"><span class="empty-icon">🛍️</span><p>O carrinho está vazio</p><button class="btn btn-outline" onclick="go('home')">Explorar Produtos</button></div>`;
+    setCartTotals(0,0); return;
+  }
+  list.innerHTML = cart.map((item,i) => `
+    <div class="cart-item">
+      <img src="${item.img}" alt="${item.name}">
+      <div><div class="ci-name">${item.name}</div><div class="ci-size">Tamanho: ${item.size}</div></div>
+      <div class="ci-right">
+        <div class="qty">
+          <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
+          <span class="qty-val">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
+        </div>
+        <div class="ci-price">€${(item.price*item.qty).toFixed(2)}</div>
+        <button class="rm-btn" onclick="removeItem(${i})">×</button>
+      </div>
+    </div>`).join('');
+  const sub = cart.reduce((s,i) => s+i.price*i.qty, 0);
+  setCartTotals(sub, cart.length ? carrier.price : 0);
+}
+function setCartTotals(sub, ship) {
+  document.getElementById('sumSub').textContent   = `€${sub.toFixed(2)}`;
+  document.getElementById('sumShip').textContent  = ship>0 ? `€${ship.toFixed(2)}` : 'Grátis';
+  document.getElementById('sumTotal').textContent = `€${(sub+ship).toFixed(2)}`;
+}
+function changeQty(i,d) {
+  cart[i].qty = Math.max(0, cart[i].qty+d);
+  if (!cart[i].qty) cart.splice(i,1);
+  saveCart(); updateBadge(); renderCart();
+}
+function removeItem(i) { cart.splice(i,1); saveCart(); updateBadge(); renderCart(); }
+function updateBadge() { document.getElementById('cartCount').textContent = cart.reduce((s,i)=>s+i.qty,0); }
+function saveCart()    { localStorage.setItem('nxt_cart', JSON.stringify(cart)); }
+
+/* ── CHECKOUT ── */
+function loadCheckout() {
+  ['fName','fEmail','fPhone','fAddr','fCity','fZip'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value=''; el.classList.remove('valid'); el.style.borderColor=''; }
+  });
+  document.getElementById('orderStatus').style.display = 'none';
+  resetPayBtns();
+
+  const sub   = cart.reduce((s,i)=>s+i.price*i.qty, 0);
+  const total = sub + carrier.price;
+
+  document.getElementById('orderItems').innerHTML = cart.map(item => `
+    <div class="order-item">
+      <img src="${item.img}" alt="${item.name}">
+      <div>
+        <div class="oi-name">${item.name}</div>
+        <div class="oi-detail">Tamanho: ${item.size} · Qtd: ${item.qty}</div>
+        <div class="oi-detail" style="color:var(--accent);font-weight:600;margin-top:.2rem">€${(item.price*item.qty).toFixed(2)}</div>
+      </div>
+    </div>`).join('');
+
+  const shipLabel = carrier.price>0 ? `€${carrier.price.toFixed(2)}` : 'Grátis';
+  document.getElementById('orderShip').textContent  = shipLabel;
+  document.getElementById('orderTotal').textContent = `€${total.toFixed(2)}`;
+  document.getElementById('ppAmount').textContent   = `€${total.toFixed(2)}`;
+  document.getElementById('rvAmount').textContent   = `€${total.toFixed(2)}`;
+  document.getElementById('ppLink').href = `${CFG.paypal}/${total.toFixed(2)}EUR`;
+  document.getElementById('rvLink').href = CFG.revolut;
+}
+function getTotal() { return cart.reduce((s,i)=>s+i.price*i.qty,0) + carrier.price; }
+
+function initCarriers() {
+  document.querySelectorAll('.carrier').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.carrier').forEach(c=>c.classList.remove('on'));
+      el.classList.add('on');
+      carrier = { name:el.dataset.name, price:parseFloat(el.dataset.price) };
+      loadCheckout();
+    });
+  });
+}
+function initPayTabs() {
+  document.querySelectorAll('.pay-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.pay-tab').forEach(b=>b.classList.remove('on'));
+      document.querySelectorAll('.pay-panel').forEach(p=>p.classList.remove('on'));
+      btn.classList.add('on');
+      document.getElementById('panel'+cap(btn.dataset.panel)).classList.add('on');
+      resetPayBtns();
+    });
+  });
+}
+
+/* ── INPUT RESTRICTIONS ── */
+function initInputRestrictions() {
+  document.getElementById('fPhone').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9]/g,'');
+  });
+  document.getElementById('fZip').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9\-]/g,'');
+  });
+  ['fName','fEmail','fPhone','fAddr','fCity','fZip'].forEach(id => {
+    document.getElementById(id).addEventListener('blur', function() {
+      this.style.borderColor = '';
+      if (this.value.trim()) this.classList.add('valid');
+      else this.classList.remove('valid');
+    });
+  });
+}
+function getFields() {
+  return {
+    name:  document.getElementById('fName').value.trim(),
+    email: document.getElementById('fEmail').value.trim(),
+    phone: document.getElementById('fPhone').value.trim(),
+    addr:  document.getElementById('fAddr').value.trim(),
+    city:  document.getElementById('fCity').value.trim(),
+    zip:   document.getElementById('fZip').value.trim()
+  };
+}
+function checkFields() {
+  const f = getFields();
+  const ids = ['fName','fEmail','fPhone','fAddr','fCity','fZip'];
+  const vals = [f.name,f.email,f.phone,f.addr,f.city,f.zip];
+  let ok = true;
+  ids.forEach((id,i) => {
+    document.getElementById(id).style.borderColor = vals[i] ? '' : 'var(--danger)';
+    if (!vals[i]) ok = false;
+  });
+  if (!ok) { showToast('⚠️ Preenche todos os campos'); return false; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) {
+    document.getElementById('fEmail').style.borderColor = 'var(--danger)';
+    showToast('⚠️ Email inválido — ex: nome@gmail.com');
+    return false;
+  }
+  return true;
+}
+
+/* ── BOTÕES "JÁ PAGUEI" ── */
+function onMbwayClick() {
+  if (!checkFields()) return;
+  copyText(CFG.mbway, '📋 Número copiado!');
+  setTimeout(() => {
+    document.getElementById('btnMB').classList.add('visible');
+    document.getElementById('mbNote').classList.add('show');
+  }, 600);
+}
+function onExternalPay(provider) {
+  if (!checkFields()) return false;
+  setTimeout(() => {
+    const map = { pp:{ btn:'btnPP', note:'ppNote' }, rv:{ btn:'btnRV', note:'rvNote' } };
+    document.getElementById(map[provider].btn).classList.add('visible');
+    document.getElementById(map[provider].note).classList.add('show');
+  }, 900);
+  return true;
+}
+function resetPayBtns() {
+  ['btnPP','btnRV','btnMB'].forEach(id => document.getElementById(id)?.classList.remove('visible'));
+  ['ppNote','rvNote','mbNote'].forEach(id => document.getElementById(id)?.classList.remove('show'));
+}
+
+/* ── ORDER SUBMISSION ── */
+async function submitOrder(method) {
+  if (!checkFields()) return;
+  if (!cart.length) { showToast('⚠️ O carrinho está vazio'); return; }
+  const f     = getFields();
+  const total = getTotal();
+  const date  = new Date().toLocaleString('pt-PT');
+  const items = cart.map(i=>`• ${i.name} (${i.size}) ×${i.qty} — €${(i.price*i.qty).toFixed(2)}`).join('\n');
+
+  setStatus('loading','⏳ A processar o teu pedido…');
+
+  const tgOk = await sendTelegram([
+    `🛍️ <b>NOVO PEDIDO — NXTwear</b>`,``,
+    `👤 <b>CLIENTE</b>`,
+    `├ Nome: <b>${f.name}</b>`,`├ Email: ${f.email}`,
+    `├ Telefone: <b>${f.phone}</b>`,`└ Morada: ${f.addr}, ${f.city} ${f.zip}`,``,
+    `🛒 <b>PRODUTOS</b>`,
+    ...cart.map(i=>`├ ${i.name} · ${i.size} · ×${i.qty} · <b>€${(i.price*i.qty).toFixed(2)}</b>`),``,
+    `🚚 <b>ENVIO:</b> ${carrier.name} — €${carrier.price.toFixed(2)}`,
+    `💳 <b>PAGAMENTO:</b> ${method}`,
+    `💰 <b>TOTAL: €${total.toFixed(2)}</b>`,`📅 ${date}`
+  ].join('\n'));
+
+  const ejOk = await sendEmail({
+    to_name:f.name, email:f.email,
+    order_items:items, carrier:carrier.name,
+    shipping:`€${carrier.price.toFixed(2)}`, payment:method,
+    total:`€${total.toFixed(2)}`, address:`${f.addr}, ${f.city}, ${f.zip}`, date
+  });
+
+  if (tgOk||ejOk) {
+    setStatus('ok',`✅ <strong>Pedido confirmado!</strong><br><small>Enviámos confirmação para ${f.email}. Obrigado por comprares na NXTwear! 🙏</small>`);
+    cart=[]; saveCart(); updateBadge();
+    setTimeout(()=>go('home'), 5000);
+  } else {
+    setStatus('err','✗ Erro ao registar o pedido. Por favor contacta-nos diretamente.');
+  }
+}
+
+/* ── TELEGRAM ── */
+async function sendTelegram(text) {
+  try {
+    const r = await fetch(`https://api.telegram.org/bot${CFG.telegram.token}/sendMessage`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:CFG.telegram.chatId,text,parse_mode:'HTML'})
+    });
+    return (await r.json()).ok;
+  } catch{return false;}
+}
+
+/* ── EMAILJS ── */
+async function sendEmail(params) {
+  try { await emailjs.send(CFG.emailjs.serviceId,CFG.emailjs.templateId,params); return true; }
+  catch(e){ console.error('EmailJS:',e); return false; }
+}
+
+/* ── HELPERS ── */
+function setStatus(type,html) {
+  const el = document.getElementById('orderStatus');
+  el.className='status '+type; el.innerHTML=html; el.style.display='block';
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function cap(s){ return s[0].toUpperCase()+s.slice(1); }
+function copyText(txt,msg) {
+  navigator.clipboard?.writeText(txt).then(()=>showToast(msg)).catch(()=>showToast(txt));
+}
+function showToast(msg) {
+  document.querySelectorAll('.nxt-toast').forEach(t=>t.remove());
+  const t = document.createElement('div');
+  t.className='nxt-toast'; t.innerHTML=msg;
+  Object.assign(t.style,{
+    position:'fixed',bottom:'2rem',left:'50%',
+    transform:'translateX(-50%) translateY(10px)',
+    background:'rgba(12,12,12,.97)',border:'1px solid var(--border2)',
+    color:'var(--text)',padding:'.75rem 1.5rem',borderRadius:'4px',
+    fontSize:'.82rem',zIndex:'9999',letterSpacing:'.3px',
+    boxShadow:'0 8px 32px rgba(0,0,0,.6)',
+    transition:'transform .3s var(--ease),opacity .3s',
+    opacity:'0',whiteSpace:'nowrap'
+  });
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>{t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)'});
+  setTimeout(()=>{
+    t.style.opacity='0';t.style.transform='translateX(-50%) translateY(6px)';
+    setTimeout(()=>t.remove(),350);
+  },2800);
+}
+</script>
+</body>
+</html>
